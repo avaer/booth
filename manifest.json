@@ -1,0 +1,16 @@
+{
+  "name": "booth",
+  "xr_type": "gltf@0.0.1",
+  "start_url": "model.glb",
+  "xr_details": {
+    "wearable": {
+      "hand": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+      "back": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+    },
+    "aabb": [
+      [-1, -1, -1],
+      [1, 1, 1]
+    ],
+    "physics": "dynamic"
+  }
+}
