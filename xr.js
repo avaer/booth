@@ -64,6 +64,7 @@ const booth = (() => {
   button.add(textMesh);
   button.position.y = 1;
   object.add(button);
+  object.button = button;
 
   return object;
 })();
@@ -80,8 +81,15 @@ const ray = new THREE.Mesh(
 ray.frustumCulled = false;
 scene.add(ray);
 
+const raycaster = new THREE.Raycaster();
+let lastClicked = false;
 renderer.setAnimationLoop(render);
 function render(timestamp, frame) {
+  ray.material.color.setHex(0x64b5f6);
+  booth.button.material.color.setHex(0xef5350);
+
+  let clicked = false;
+
   if (currentSession && frame) {
     const referenceSpace = renderer.xr.getReferenceSpace();
     const inputSources = Array.from(currentSession.inputSources);
@@ -90,10 +98,27 @@ function render(timestamp, frame) {
       let pose, gamepad;
       if ((pose = frame.getPose(inputSource.targetRaySpace, referenceSpace)) && (gamepad = inputSource.gamepad)) {
         new THREE.Matrix4().fromArray(pose.transform.matrix).decompose(ray.position, ray.quaternion, ray.scale);
-        ray.material.color.setHex(gamepad.buttons[0].pressed ? 0x01579b : 0x64b5f6);
+
+        clicked = gamepad.buttons[0].pressed;
+        if (clicked) {
+          ray.material.color.multiplyScalar(0.5);
+        }
+
+        raycaster.ray.origin.copy(ray.position);
+        raycaster.ray.direction.set(0, 0, -1).applyQuaternion(ray.quaternion);
+        const intersects = raycaster.intersectObjects([booth.button]);
+        if (intersects.length > 0) {
+          booth.button.material.color.multiplyScalar(0.5);
+
+          if (clicked && !lastClicked) {
+            console.log('clicked');
+          }
+        }
       }
     }
   }
+
+  lastClicked = clicked;
 
   renderer.render(scene, camera);
 }
