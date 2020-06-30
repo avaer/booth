@@ -50,12 +50,6 @@ function render() {
   renderer.render(scene, camera);
 }
 
-navigator.xr.addEventListener('event', async e => {
-  console.log('event event', e.data);
-  if (e.data.type === 'vrcrad') {
-    console.log('got card event', e.data);
-  }
-});
 navigator.xr.addEventListener('secure', async e => {
   // console.log('secure event', e.data);
   const {packageAddress, credentials} = e.data;
