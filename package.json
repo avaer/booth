@@ -1,7 +1,7 @@
 {
-  "name": "sword",
+  "name": "booth",
   "version": "0.0.3",
-  "description": "WebXR Sword",
+  "description": "WebXR Booth",
   "main": "index.js",
   "dependencies": {
     "express": "^4.17.1"
@@ -16,9 +16,5 @@
     "url": "git+https://github.com/exokitxr/multiplayer.git"
   },
   "author": "Avaer Kazmer <a@modules.io>",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/exokitxr/multiplayer/issues"
-  },
-  "homepage": "https://github.com/exokitxr/multiplayer#readme"
+  "license": "ISC"
 }
