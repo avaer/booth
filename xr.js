@@ -29,6 +29,20 @@ scene.add(directionalLight2);
 const ambientLight = new THREE.AmbientLight(0x808080);
 scene.add(ambientLight);
 
+const _makeTextMesh = (text, fontSize, anchorX, anchorY) => {
+  const textMesh = new TextMesh();
+  textMesh.text = text;
+  textMesh.font = './GeosansLight.ttf';
+  textMesh.fontSize = fontSize;
+  // textMesh.position.set(0, 1, -2);
+  textMesh.color = 0xFFFFFF;
+  textMesh.anchorX = anchorX;
+  textMesh.anchorY = anchorY;
+  textMesh.frustumCulled = false;
+  textMesh.sync();
+  return textMesh;
+};
+
 const booth = (() => {
   const object = new THREE.Object3D();
 
@@ -41,17 +55,47 @@ const booth = (() => {
     console.warn(err);
   });
 
+  const button = new THREE.Mesh(new THREE.PlaneBufferGeometry(0.5, 0.3), new THREE.MeshBasicMaterial({
+    color: 0xef5350,
+    side: THREE.DoubleSide,
+  }));
+  const textMesh = _makeTextMesh('Buy', 0.15, 'center', 'middle');
+  textMesh.position.z = 0.01;
+  button.add(textMesh);
+  button.position.y = 1;
+  object.add(button);
+
   return object;
 })();
 scene.add(booth);
 
+const ray = new THREE.Mesh(new THREE.CylinderBufferGeometry(0.01, 0.01, 1, 3, 1).applyMatrix4(new THREE.Matrix4().makeTranslation(0, 1/2, 0)), new THREE.MeshBasicMaterial({
+  color: 0x64b5f6,
+}));
+ray.frustumCulled = false;
+scene.add(ray);
+
 renderer.setAnimationLoop(render);
 function render() {
+  if (currentSession) {
+    const referenceSpace = renderer.xr.getReferenceSpace();
+    const inputSources = Array.from(currentSession.inputSources);
+    const inputSource = inputSources.find(inputSource => inputSource.handedness === 'right');
+    if (inputSource) {
+      let pose;
+      if (pose = frame.getPose(inputSource.targetRaySpace, referenceSpace)) {
+        /* const p = new THREE.Vector3();
+        const q = new THREE.Quaternion();
+        const s = new THREE.Vector3(); */
+        new THREE.Matrix4().fromArray(pose.transform.matrix).decompose(ray.position, ray.quaternion, ray.scale);
+      }
+    }
+  }
+
   renderer.render(scene, camera);
 }
 
 navigator.xr.addEventListener('secure', async e => {
-  // console.log('secure event', e.data);
   const {packageAddress, credentials} = e.data;
 
   setInterval(async () => {
@@ -63,9 +107,8 @@ navigator.xr.addEventListener('secure', async e => {
   }, 1000);
 });
 
+let currentSession = null;
 {
-  let currentSession = null;
-
   function onSessionStarted( session ) {
     session.addEventListener( 'end', onSessionEnded);
     renderer.xr.setSession(session);
