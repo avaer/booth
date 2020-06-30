@@ -69,25 +69,28 @@ const booth = (() => {
 })();
 scene.add(booth);
 
-const ray = new THREE.Mesh(new THREE.CylinderBufferGeometry(0.01, 0.01, 1, 3, 1).applyMatrix4(new THREE.Matrix4().makeTranslation(0, 1/2, 0)), new THREE.MeshBasicMaterial({
-  color: 0x64b5f6,
-}));
+const ray = new THREE.Mesh(
+  new THREE.CylinderBufferGeometry(0.01, 0.01, 1, 3, 1)
+    .applyMatrix4(new THREE.Matrix4().makeTranslation(0, 1/2, 0))
+    .applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI/2))),
+  new THREE.MeshBasicMaterial({
+    color: 0x64b5f6,
+  })
+);
 ray.frustumCulled = false;
 scene.add(ray);
 
 renderer.setAnimationLoop(render);
-function render() {
-  if (currentSession) {
+function render(timestamp, frame) {
+  if (currentSession && frame) {
     const referenceSpace = renderer.xr.getReferenceSpace();
     const inputSources = Array.from(currentSession.inputSources);
     const inputSource = inputSources.find(inputSource => inputSource.handedness === 'right');
     if (inputSource) {
-      let pose;
-      if (pose = frame.getPose(inputSource.targetRaySpace, referenceSpace)) {
-        /* const p = new THREE.Vector3();
-        const q = new THREE.Quaternion();
-        const s = new THREE.Vector3(); */
+      let pose, gamepad;
+      if ((pose = frame.getPose(inputSource.targetRaySpace, referenceSpace)) && (gamepad = inputSource.gamepad)) {
         new THREE.Matrix4().fromArray(pose.transform.matrix).decompose(ray.position, ray.quaternion, ray.scale);
+        ray.material.color.setHex(gamepad.buttons[0].pressed ? 0x01579b : 0x64b5f6);
       }
     }
   }
