@@ -57,58 +57,16 @@ navigator.xr.addEventListener('event', async e => {
   }
 });
 navigator.xr.addEventListener('secure', async e => {
-  console.log('secure event', e.data);
-  /* const {packageAddress, credentials} = e.data;
+  // console.log('secure event', e.data);
+  const {packageAddress, credentials} = e.data;
 
-  await executeTransaction(credentials, `
-    // Transaction2.cdc
-
-    import FungibleToken from 0x${packageAddress}
-
-    // This transaction configures an account to store and receive tokens defined by
-    // the FungibleToken contract.
-    transaction {
-      prepare(acct: AuthAccount) {
-        // Store the vault in the account storage
-        let vaultRef = acct.borrow<&FungibleToken.Vault>(from: /storage/MainVault)
-        if (vaultRef == nil) {
-          // Create a new empty Vault object
-          let vaultA <- FungibleToken.createEmptyVault()
-          acct.save<@FungibleToken.Vault>(<-vaultA, to: /storage/MainVault)
-        }
-
-        log("Empty Vault stored")
-
-        // Create a public Receiver capability to the Vault
-        let ReceiverRef = acct.link<&FungibleToken.Vault{FungibleToken.Receiver, FungibleToken.Balance}>(/public/MainReceiver, target: /storage/MainVault)
-
-        log("References created")
-      }
-
-        post {
-            // Check that the capabilities were created correctly
-            getAccount(0x${credentials.address}).getCapability(/public/MainReceiver)!
-                            .check<&FungibleToken.Vault{FungibleToken.Receiver}>():  
-                            "Vault Receiver Reference was not created correctly"
-        }
-    }
-  `);
   setInterval(async () => {
-    const result = await executeScript(`
-      import FungibleToken from 0x${packageAddress}
-
-      pub fun main() : UFix64 {
-        let publicAccount = getAccount(0x${credentials.address})
-        let capability = publicAccount.getCapability(/public/MainReceiver)!
-        let vaultRef = capability.borrow<&FungibleToken.Vault{FungibleToken.Receiver, FungibleToken.Balance}>()!
-        return vaultRef.balance
-      }
-    `);
-    const crd = parseFloat(result.encodedData.value);
-    console.log('got result', crd, result);
-    card.creditTextMesh.text = `${crd} CRD`;
-    card.creditTextMesh.sync();
-  }, 1000); */
+    navigator.xr.emit('paymentrequest', {
+      address: packageAddress,
+    }, response => {
+      console.log('got payment reponse', response);
+    });
+  }, 1000);
 });
 
 {
