@@ -85,6 +85,14 @@ const raycaster = new THREE.Raycaster();
 let lastClicked = false;
 renderer.setAnimationLoop(render);
 function render(timestamp, frame) {
+  if (currentSession) {
+    const vrCamera = renderer.xr.getCamera(camera);
+    if (vrCamera.cameras.length >= 2) {
+      // vrCamera.cameras[0].matrixWorld.decompose(camera.position, camera.quaternion, camera.scale);
+      camera.matrix.copy(vrCamera.cameras[0].matrixWorld);
+    }
+  }
+
   ray.material.color.setHex(0x64b5f6);
   booth.button.material.color.setHex(0xef5350);
 
@@ -115,8 +123,20 @@ function render(timestamp, frame) {
 
             navigator.xr.emit('paymentrequest', {
               address: packageAddress,
-            }, response => {
+            }, async response => {
               console.log('got payment reponse', response);
+
+              const res = await fetch('https://packages.exokit.org/lightsaber');
+              const j = await res.json();
+              const {dataHash} = j;
+              const p = await XRPackage.download(dataHash);
+              /* dialog.position.copy(camera.position)
+                .add(new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion));
+              dialog.quaternion.copy(camera.quaternion); */
+              const matrix = xrpackage.package.matrix.clone()
+                .multiply(new THREE.Matrix4().makeTranslation(0, 0.5, 0));
+              p.setMatrix(matrix);
+              await xrpackage.engine.add(p);
             });
           }
         }
