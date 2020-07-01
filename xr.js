@@ -110,8 +110,14 @@ function render(timestamp, frame) {
         if (intersects.length > 0) {
           booth.button.material.color.multiplyScalar(0.5);
 
-          if (clicked && !lastClicked) {
+          if (clicked && !lastClicked && packageAddress) {
             console.log('clicked');
+
+            navigator.xr.emit('paymentrequest', {
+              address: packageAddress,
+            }, response => {
+              console.log('got payment reponse', response);
+            });
           }
         }
       }
@@ -123,16 +129,10 @@ function render(timestamp, frame) {
   renderer.render(scene, camera);
 }
 
+let packageAddress = null;
 navigator.xr.addEventListener('secure', async e => {
-  const {packageAddress, credentials} = e.data;
-
-  setInterval(async () => {
-    navigator.xr.emit('paymentrequest', {
-      address: packageAddress,
-    }, response => {
-      console.log('got payment reponse', response);
-    });
-  }, 1000);
+  packageAddress = e.data.packageAddress;
+  const {credentials} = e.data;
 });
 
 let currentSession = null;
