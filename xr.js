@@ -71,8 +71,8 @@ const booth = (() => {
 scene.add(booth);
 
 const ray = new THREE.Mesh(
-  new THREE.CylinderBufferGeometry(0.01, 0.01, 1, 3, 1)
-    .applyMatrix4(new THREE.Matrix4().makeTranslation(0, 1/2, 0))
+  new THREE.CylinderBufferGeometry(0.01, 0.01, 10, 3, 1)
+    .applyMatrix4(new THREE.Matrix4().makeTranslation(0, 10/2, 0))
     .applyMatrix4(new THREE.Matrix4().makeRotationFromQuaternion(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI/2))),
   new THREE.MeshBasicMaterial({
     color: 0x64b5f6,
